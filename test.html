@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+
+<script src="http://img-1255740208.cossh.myqcloud.com/%E7%94%B0%E5%A3%AB%E8%81%AA/jquery-2.1.0.min.js"></script>
+<script>
+    //登录
+    /*$.ajax({
+        type:'POST',
+        data:{
+            name:'admin1',
+            password:'password',
+        },
+        url:'http://localhost/zulin/api/login.php',
+        success:function (data) {
+            console.log(data)
+        }
+    })*/
+
+    //添加用户
+    /*$.ajax({
+         type:'POST',
+         data:{
+             name:'admin',
+             password:11111,
+             type:1
+         },
+         url:'http://localhost/zulin/api/add_user.php',
+         success:function (data) {
+            console.log(data)
+         }
+     })*/
+
+    //删除用户
+    /*$.ajax({
+        type:'POST',
+        data:{
+            name:'user',
+            id:2
+        },
+        url:'http://localhost/zulin/api/remove.php',
+        success:function (data) {
+            console.log(data)
+        }
+    })*/
+
+    //新增设备
+    /*$.ajax({
+        type:'POST',
+        data:{
+            name:'device3',
+            price:1.123,
+            last:30,
+            count:30
+        },
+        url:'http://localhost/zulin/api/add_device.php',
+        success:function (data) {
+            console.log(data)
+        }
+    })*/
+
+    //编辑设备
+    /*$.ajax({
+        type:'POST',
+        data:{
+            price:1.25,
+            last:40,
+            count:40,
+            id:4
+        },
+        url:'http://localhost/zulin/api/edit_device.php',
+        success:function (data) {
+            console.log(data)
+        }
+    })*/
+
+    //新增工地
+    /*$.ajax({
+        type:'POST',
+        data:{
+            name:'site2',
+            person_name:"person2",
+            phone:12345678901
+        },
+        url:'http://localhost/zulin/api/add_site.php',
+        success:function (data) {
+            console.log(data)
+        }
+    })*/
+
+    //编辑工地
+    $.ajax({
+        type:'POST',
+        data:{
+            id:1,
+            name:'site2',
+            person_name:'person3',
+            phone:'09876543210'
+        },
+        url:'http://localhost/zulin/api/edit_site.php',
+        success:function (data) {
+            console.log(data)
+        }
+    })
+</script>
+</html>
