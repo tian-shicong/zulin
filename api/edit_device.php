@@ -21,6 +21,11 @@
         if(count($results) == 0){
             $data['code'] = -2;
         }else{
+            if(isset($_POST["name"])){
+                $name = $_POST["name"];
+            }else{
+                $name = $results[0]["name"];
+            }
             if(isset($_POST["price"])){
                 $price = $_POST["price"];
             }else{
@@ -37,7 +42,7 @@
                 $last = $results[0]["last"];
             }
         }
-        $sql = "UPDATE device SET price = '$price', count = '$count', last = '$last' WHERE id = '$id'";
+        $sql = "UPDATE device SET price = '$price', count = '$count', last = '$last', name = '$name' WHERE id = '$id'";
         if ($conn->query($sql) == TRUE) {
             $data['code'] = 0;
         } else {

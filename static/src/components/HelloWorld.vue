@@ -12,7 +12,7 @@
           <el-input v-model="ruleForm.password" type="password"></el-input>
         </el-form-item>
         <div>
-          <el-button type="primary" @click="submitForm('ruleForm')">立即创建</el-button>
+          <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
         </div>
       </el-form>
     </div>
@@ -54,9 +54,15 @@ export default {
         }).then((res)=>{
           console.log(res);
           if(res.code==0){
-//                console.log(this)
-            this.$store.commit('setUserSession', this.ruleForm)
-            this.$router.push({path: '/device'});
+            console.log(res.data)
+            this.$store.commit('setUserSession', {...this.ruleForm,role:res.data.type});
+            if(sessionStorage.getItem('path')){
+              this.$router.push({path: sessionStorage.getItem('path')});
+//              this.$router.push({path: '/device'});
+            }else {
+              this.$router.push({path: '/device'});
+            }
+//            this.$router.push({path: '/device'});
             this.$message({
               message:'登录成功!',
               type:'success'
@@ -86,6 +92,10 @@ export default {
           this.login();
         } else {
           console.log('error submit!!');
+          this.$message({
+            message:'请输入用户名密码！',
+            type:'warning'
+          })
           return false;
         }
       });

@@ -65,7 +65,11 @@ router.beforeEach((to, from, next)=>{
   document.getElementById('siteTitle').innerText = siteTitle;
   if(to.name == 'login'){
     next()
+  }else {
+    sessionStorage.setItem('path', to.path);
   }
+  // return
+
   var loginSession = sessionStorage.getItem('user');
   if(loginSession){
     next()

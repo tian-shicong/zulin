@@ -1,6 +1,7 @@
 
 import Vue from 'vue';
 import app from './App'
+import search from '@/components/search'
 import router from './router'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
@@ -28,6 +29,7 @@ library.add(
 );
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);
+Vue.component('search',search)
 Vue.use(ElementUI);
 Vue.use(Vuex)
 

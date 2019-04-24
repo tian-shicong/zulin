@@ -68,12 +68,15 @@ export default {
       return this.$store.state.title;
     },
     user(){
+        console.log(this.$store.state.user)
       return this.$store.state.user;
+    },
+    activeIndex(){
+      return this.$store.state.activeIndex;
     }
   },
   data() {
     return {
-      activeIndex: 'device',
       isCollapse:false
     };
   },
@@ -90,9 +93,8 @@ export default {
     }
   },
   created:function () {
-//      console.log(this.$route.name);
-      this.activeIndex = this.$route.name;
-    console.log(this.user)
+      console.log(this.$route.name);
+      this.$store.commit('setActiveIndex', this.$route.name);
   },
   mounted:function () {
     var userSession = sessionStorage.getItem('user');
@@ -169,5 +171,9 @@ export default {
   }
   .userText:hover{
     color: #409eff;
+  }
+  .breadcrumbWrap{
+    margin-bottom: 12px;
+    height: 40px;
   }
 </style>

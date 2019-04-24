@@ -3,7 +3,8 @@
  */
 const state = {
     user: null, // 用户信息
-    title:"Hello World"
+    title:"Hello World",
+    activeIndex:'device'
 }
 
 export default state

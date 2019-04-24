@@ -19,6 +19,7 @@
         }else{
             if($results[0]['password'] == $password){
                     $data['code'] = 0;
+                    $data['data'] = $results[0];
             }else{
                 $data['code'] = -2;
             }

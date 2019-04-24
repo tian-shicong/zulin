@@ -9,6 +9,9 @@ const mutations = {
   removeUserSession(state){
     state.user = null;
     sessionStorage.removeItem('user');
+  },
+  setActiveIndex(state, n){
+    state.activeIndex = n;
   }
 }
 

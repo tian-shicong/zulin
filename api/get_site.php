@@ -4,7 +4,7 @@
 	date_default_timezone_set('PRC');
     require('./conn.php');
     $data = [];
-    $sql = "select * from device";
+    $sql = "select * from site";
     $result = $conn->query($sql);
     $results = array();
     while ($row = $result->fetch_assoc()) {
