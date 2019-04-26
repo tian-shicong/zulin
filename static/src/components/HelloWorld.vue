@@ -55,7 +55,7 @@ export default {
           console.log(res);
           if(res.code==0){
             console.log(res.data)
-            this.$store.commit('setUserSession', {...this.ruleForm,role:res.data.type});
+            this.$store.commit('setUserSession', {...this.ruleForm,role:res.data.type,id:res.data.id});
             if(sessionStorage.getItem('path')){
               this.$router.push({path: sessionStorage.getItem('path')});
 //              this.$router.push({path: '/device'});

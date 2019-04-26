@@ -4,7 +4,16 @@
 	date_default_timezone_set('PRC');
     require('./conn.php');
     $data = [];
-    $sql = "select * from site";
+    if(isset($_GET['id'])){
+        $id = $_GET['id'];
+        $data['id'] = $id;
+        $sql = "select * from site where id = '$id'";
+    }else if(isset($_GET['status'])){
+        $status = $_GET['status'];
+        $sql = "select * from site where status = '$status'";
+    }else{
+        $sql = "select * from site";
+    }
     $result = $conn->query($sql);
     $results = array();
     while ($row = $result->fetch_assoc()) {

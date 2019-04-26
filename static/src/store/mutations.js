@@ -12,6 +12,12 @@ const mutations = {
   },
   setActiveIndex(state, n){
     state.activeIndex = n;
+  },
+  setEditUser(state, n){
+    state.isEditUser = n;
+  },
+  setLoading(state, n){
+    state.isLoading = n;
   }
 }
 

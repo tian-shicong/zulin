@@ -4,7 +4,9 @@
 const state = {
     user: null, // 用户信息
     title:"Hello World",
-    activeIndex:'device'
+    activeIndex:'device',
+    isEditUser:false,
+    isLoading:true
 }
 
 export default state

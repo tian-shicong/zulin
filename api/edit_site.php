@@ -24,17 +24,6 @@
         }
         if(isset($_POST["name"])){
             $name = $_POST["name"];
-            $sql = "select * from site where name = '$name'";
-            $result = $conn->query($sql);
-            $results = array();
-            while ($row = $result->fetch_assoc()) {
-                $results[] = $row;
-            }
-            if(count($results) > 0){
-                $data['code'] = -2;
-                echo json_encode($data);
-                return;
-            }
         }else{
             $name = $myResults[0]["name"];
         }
@@ -51,7 +40,7 @@
             $phone = $myResults[0]["phone"];
         }
         //更新数据
-        $sql = "select * from site where name = '$name'";
+        $sql = "select * from site where name = '$name' and id != '$id'";
         $result = $conn->query($sql);
         $results = array();
         while ($row = $result->fetch_assoc()) {

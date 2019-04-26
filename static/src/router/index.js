@@ -5,6 +5,7 @@ import Device from '@/components/device'
 import Order from '@/components/order'
 import User from '@/components/user'
 import Count from '@/components/count'
+import Flow from '@/components/flow'
 
 Vue.use(Router);
 
@@ -19,6 +20,10 @@ const router = new Router({
       path: '/order',
       name: 'order',
       component: Order
+    },{
+      path: '/flow',
+      name: 'flow',
+      component: Flow
     },
     {
       path: '/user',
@@ -47,6 +52,7 @@ router.beforeEach((to, from, next)=>{
     case "device":
       var siteTitle = '设备管理';
       break;
+    case "flow":
     case "order":
       var siteTitle = '订单管理';
       break;

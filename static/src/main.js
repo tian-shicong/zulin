@@ -2,6 +2,7 @@
 import Vue from 'vue';
 import app from './App'
 import search from '@/components/search'
+import loading from '@/components/loading'
 import router from './router'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
@@ -18,18 +19,19 @@ Vue.prototype.qs = qs.stringify;
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import {
-  faUser, faChartLine, faAmericanSignLanguageInterpreting,faUserCircle
+  faUser, faChartLine, faAmericanSignLanguageInterpreting,faUserCircle,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
   faUser,
   faChartLine,
   faAmericanSignLanguageInterpreting,
-  faUserCircle
+  faUserCircle,
 );
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 Vue.component('search',search)
+Vue.component('loading',loading)
 Vue.use(ElementUI);
 Vue.use(Vuex)
 

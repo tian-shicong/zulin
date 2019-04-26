@@ -4,7 +4,7 @@
 //count: 总数
 //last：库存剩余
 
-//data 0:成功  -1：缺少参数   1：插入失败  -2:找不到设备
+//data 0:成功  -1：缺少参数   1：插入失败  -2:找不到设备  -3:名称已存在
     header("Access-Control-Allow-Origin:*");
 	header("Content-Type:text/html;charset=utf-8");
 	date_default_timezone_set('PRC');
@@ -20,9 +20,22 @@
         }
         if(count($results) == 0){
             $data['code'] = -2;
+            echo json_encode($data);
+            return;
         }else{
             if(isset($_POST["name"])){
                 $name = $_POST["name"];
+                $sql1 = "select * from device where name = '$name' and id != '$id'";
+                $result1 = $conn->query($sql1);
+                $results1 = array();
+                while ($row1 = $result1->fetch_assoc()) {
+                    $results1[] = $row1;
+                }
+                if(count($results1) > 0){
+                    $data['code'] = -3;
+                    echo json_encode($data);
+                    return;
+                }
             }else{
                 $name = $results[0]["name"];
             }

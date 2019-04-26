@@ -1,7 +1,7 @@
 <template>
   <div style="padding:8px 24px;height: 100%">
     <div class="breadcrumbWrap">
-      <div style="height: 40px;float: left">
+      <div class="breadcrumb-box">
         <el-breadcrumb separator-class="el-icon-arrow-right">
           <el-breadcrumb-item :to="{ path: '/device' }">设备管理</el-breadcrumb-item>
         </el-breadcrumb>
@@ -19,7 +19,7 @@
     >
       <el-table-column
         prop="id"
-        label="ID"
+        label="设备编号"
         sortable
       >
       </el-table-column>
@@ -148,6 +148,7 @@
               url:'get_device.php'
             }).then((res)=>{
                 if(res.code == 0){
+                    this.$store.commit('setLoading', 0)
                     for(var a = 0; a < res.data.length; a++){
                         if(res.data[a].status == 1){
                           res.data[a].status1 = "上架"
@@ -168,6 +169,9 @@
         },
         handleEdit(index, item){
             this.dialogFormVisible = true;
+            if(this.$refs.form){
+              this.$refs.form.clearValidate();
+            }
             this.form = Object.assign({}, this.form, {
               name: item.name,
               price: item.price,
@@ -205,13 +209,17 @@
         editCommit(form,formName){
             this.$refs[formName].validate((valid) => {
               if (valid) {
+                this.$store.commit('setLoading', 1);
                 console.log(form);
                 this.$.ajax({
                   method:"post",
                   url:'edit_device.php',
                   data:this.qs(this.form)
                 }).then((res=>{
-                    console.log(res)
+                    console.log(res);
+                    if(res.code != 0){
+                      this.$store.commit('setLoading', 0);
+                    }
                     if(res.code == 0){
                       this.dialogFormVisible = false;
                       this.getDevice()
@@ -224,7 +232,7 @@
                         message:'编辑失败，缺少参数！',
                         type:"error"
                       })
-                    }else if(res.code == -1){
+                    }else if(res.code == -2){
                       this.$message({
                         message:'编辑失败，找不到设备！',
                         type:"error"
@@ -232,6 +240,11 @@
                     }else if(res.code == 1){
                       this.$message({
                         message:'编辑失败，请重试！',
+                        type:"error"
+                      })
+                    }else if(res.code == -3){
+                      this.$message({
+                        message:'编辑失败，设备名称已经存在，请修改后重试！',
                         type:"error"
                       })
                     }
@@ -248,17 +261,24 @@
 
         },
       handleAdd(){
-            this.add_dialogFormVisible = true
+            this.add_dialogFormVisible = true;
+            if(this.$refs.addForm){
+              this.$refs.addForm.clearValidate();
+            }
       },
       addCommit(addForm,formName){
         this.$refs[formName].validate((valid) => {
           if (valid) {
+            this.$store.commit('setLoading', 1);
             console.log(addForm);
             this.$.ajax({
               method:"POST",
               url:'add_device.php',
               data:this.qs(this.addForm)
             }).then((res)=>{
+                if(res.code != 0){
+                  this.$store.commit('setLoading', 0);
+                }
                 if(res.code == 0){
                     this.add_dialogFormVisible = false;
                     this.addForm = {name:'',price:'',count:'',last:''};
@@ -299,6 +319,9 @@
       console.log(this.$route)
       this.$store.commit('setActiveIndex', this.$route.name);
       console.log(this.$store.state.activeIndex)
+    },
+    created(){
+      this.$store.commit('setLoading', 1)
     }
   }
 </script>

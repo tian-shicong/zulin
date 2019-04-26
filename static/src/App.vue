@@ -1,5 +1,9 @@
 <template>
   <div id="app">
+    <!--loading-->
+    <transition name="fade">
+      <loading v-if="isLoading"></loading>
+    </transition>
     <!--topBar-->
     <div class="topBar">
       <div style="float: left;line-height: 50px;font-size: 30px">
@@ -12,7 +16,7 @@
         <span style="font-size: 24px;">
           <font-awesome-icon :icon="['fas', 'user-circle']"></font-awesome-icon>
         </span>
-        <span style="cursor: pointer;margin-left: 6px" class="userText">
+        <span style="cursor: pointer;margin-left: 6px" class="userText" @click="goEdit(user.id)">
           {{user.name}}
         </span>
         <span style="cursor: pointer;margin-left: 6px;font-size: 13px" class="userText" @click="logout">
@@ -68,11 +72,13 @@ export default {
       return this.$store.state.title;
     },
     user(){
-        console.log(this.$store.state.user)
       return this.$store.state.user;
     },
     activeIndex(){
       return this.$store.state.activeIndex;
+    },
+    isLoading(){
+        return this.$store.state.isLoading;
     }
   },
   data() {
@@ -90,10 +96,13 @@ export default {
     logout(){
         this.$store.commit('removeUserSession');
         this.$router.push('/login')
+    },
+    goEdit(id){
+      this.$router.push('./user')
+      this.$store.commit('setEditUser', id)
     }
   },
   created:function () {
-      console.log(this.$route.name);
       this.$store.commit('setActiveIndex', this.$route.name);
   },
   mounted:function () {
@@ -175,5 +184,22 @@ export default {
   .breadcrumbWrap{
     margin-bottom: 12px;
     height: 40px;
+  }
+  .fade-enter,
+  .fade-leave-active {
+    opacity: 0;
+  }
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.2s;
+  }
+  .breadcrumb-box{
+    height: 40px;
+    float: left;
+    display: flex;
+    align-items: center;
+  }
+  .el-breadcrumb{
+    font-size: 16px;
   }
 </style>
