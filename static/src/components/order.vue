@@ -48,6 +48,12 @@
         sortable
       >
       </el-table-column>
+      <el-table-column
+        prop="finished1"
+        label="是否完结"
+        sortable
+      >
+      </el-table-column>
       <el-table-column label="操作" width="300">
         <template slot-scope="scope">
           <el-button
@@ -156,6 +162,7 @@
               }else {
                 res.data[a].status1 = "下架"
               }
+              res.data[a].finished1 = res.data[a].isfinished==0?'未完结':'已完结'
             }
             this.allData = res.data.concat()
           }

@@ -8,19 +8,212 @@
         </el-breadcrumb>
       </div>
 
-      <!--<search :allData="allData" :dataList="dataList" v-model="dataList" style="float: right"></search>-->
-      <!--<el-button type="primary" plain style="float: right;margin-right: 8px" @click="handleAdd">新增流水</el-button>-->
+      <search :allData="allData" :dataList="dataList" v-model="dataList" style="float: right"></search>
+      <el-button type="primary" plain style="float: right;margin-right: 8px" @click="handleAdd">新增流水</el-button>
     </div>
+    <el-table
+      height="87%"
+      :data="dataList"
+      style="width: 100%;"
+      :default-sort = "{prop: 'id', order: 'ascending'}"
+    >
+      <el-table-column
+        prop="id"
+        label="流水编号"
+        sortable
+      >
+      </el-table-column>
+      <el-table-column
+        prop="device.name"
+        label="设备名称"
+        sortable
+      >
+      </el-table-column>
+      <el-table-column
+        prop="number"
+        label="数量"
+        sortable
+      >
+      </el-table-column>
+      <el-table-column
+        prop="begin_date"
+        label="起始日期"
+        sortable
+        width="130px"
+        :formatter="formatter"
+      >
+      </el-table-column>
+      <!--<el-table-column
+        prop="create_date"
+        label="生成日期"
+        sortable
+        width="100px"
+        :formatter="formatterDate"
+      >
+      </el-table-column>-->
+      <el-table-column
+        prop="type1"
+        label="流水类型"
+        sortable
+      >
+      </el-table-column>
+      <el-table-column
+        prop="settle1"
+        label="是否结清"
+      ></el-table-column>
+      <el-table-column
+        prop="settle_last"
+        label="待结算"
+        sortable
+      ></el-table-column>
+      <el-table-column
+        prop="money"
+        label="总金额"
+        sortable
+        :formatter="formatterMoney"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="discount"
+        label="优惠金额"
+        :formatter="formatterDiscount"
+        sortable
+      >
+      </el-table-column>
+      <el-table-column
+        label="应收金额"
+      >
+        <template slot-scope="scope">
+          <span v-if="scope.row.type == 0">{{scope.row.money - scope.row.discount}}</span>
+          <span v-if="scope.row.type == 1">---</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="150px">
+        <template slot-scope="scope">
+          <!--<el-button-->
+            <!--size="mini"-->
+            <!--@click="handleEdit(scope.$index, scope.row)">编辑</el-button>-->
+          <el-button
+            size="mini"
+            type="danger"
+            :disabled="scope.row.settle == 1 || scope.row.settle_last != scope.row.number"
+            @click="handleRemove(scope.$index, scope.row)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <!--添加流水-->
+    <el-dialog :title="site.name + ' 新增流水'" :visible.sync="add_dialogFormVisible" style="text-align: left" width="40%">
+      <el-form :model="addForm" label-width="100px" :rules="rules" ref="addForm">
+        <el-form-item label="设备名称" prop="device_id">
+          <el-select v-model="addForm.device_id" placeholder="请选择设备" style="width: 100%" @change="findDevice">
+            <el-option :label="item.name" :value="item.id" :key="item.id" v-for="(item, index) in deviceList"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="数量" prop="number" v-if="addForm.device_id">
+          <el-input v-model="addForm.number"  placeholder="请输入数量" type="number" @change="computedMoney"></el-input>
+        </el-form-item>
+
+        <el-form-item label="类型" prop="type">
+          <el-radio v-model="addForm.type" label="1" @change="computedMoney">出租</el-radio>
+          <el-radio v-model="addForm.type" label="0" @change="computedMoney">归还</el-radio>
+        </el-form-item>
+
+        <el-form-item label="起始日期" prop="begin_date" v-if="addForm.type == 1">
+          <el-date-picker
+            v-model="addForm.begin_date"
+            format="yyyy / MM / dd"
+            type="date"
+            placeholder="选择日期">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="总金额" v-if="addForm.type == 0">
+          <span>{{addForm.money}}</span>
+        </el-form-item>
+        <el-form-item label="优惠金额" v-if="addForm.type == 0">
+          <el-input v-model="addForm.discount" placeholder="请输入优惠金额" type="number"></el-input>
+        </el-form-item>
+        <el-form-item label="应收"v-if="addForm.type == 0 && addForm.money">
+          <span>{{addForm.money - addForm.discount}}</span>
+        </el-form-item>
+        <el-form-item label="明细" v-if="addForm.type == 0 && addForm.money">
+          <template slot-scope="scope">
+            <el-table
+              :data="flowDetail"
+              style="width: 100%">
+              <el-table-column
+                label="流水编号"
+                prop="id"
+              >
+              </el-table-column>
+              <el-table-column
+                label="起始日期"
+                prop="begin_date"
+              >
+              </el-table-column>
+              <el-table-column
+                label="数量"
+                prop="number"
+              >
+              </el-table-column>
+              <el-table-column
+                label="金额"
+                prop="money"
+              >
+              </el-table-column>
+            </el-table>
+          </template>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="add_dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addCommit(addForm,'addForm')">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
   export default{
       data(){
           return{
-            site:{}
+            addForm:{type:'1',begin_date:(new Date).valueOf(),discount:0},
+            site:{},
+            deviceList:[],
+            dataList:[],
+            allData:[],
+            add_dialogFormVisible:false,
+            dialogFormVisible:false,
+            rules:{
+              device_id: {required: true, message: '请选择设备', trigger: 'blur'},
+              type: {required: true, message: '请选择流水类型', trigger: 'blur'},
+              begin_date: {required: true, message: '请选择起始日期', trigger: 'blur'},
+              number: {required: true, message: '请输入数量', trigger: 'blur'},
+            },
+            currDevice:{},
+            flowArr:[],
+            countNumber:0,
+            flowDetail:[]
           }
       },
     methods:{
+      //获取流水
+      getFlow(id){
+          this.$.ajax({
+            url:'get_flow.php?id=' + id
+          }).then((res)=>{
+              this.$store.commit('setLoading', 0)
+              if(res.code == 0){
+                  this.allData = res.data;
+                  console.log(this.allData);
+                  for(var a = 0; a < this.allData.length; a++){
+                    this.allData[a].begin_date1 = this.formatDate(Number(this.allData[a].begin_date));
+                    this.allData[a].create_date1 = this.formatDate(Number(this.allData[a].create_date));
+                    this.allData[a].type1 = this.allData[a].type==1?'出租':'归还'
+                    this.allData[a].settle1 = this.allData[a].settle==1?'已结清':'未结清'
+                  }
+              }
+          })
+      },
       //查询site
       getSite(id){
           this.$.ajax({
@@ -28,7 +221,8 @@
           }).then((res)=>{
               console.log(res)
               if(res.code == 0 && res.data.length > 0){
-                  this.site = res.data[0]
+                  this.site = res.data[0];
+                  this.getFlow(this.site.id)
               }else {
                   this.$message({
                     message:'获取客户信息失败！',
@@ -36,10 +230,232 @@
                   })
               }
           })
+      },
+      //获取设备
+      getDevice(){
+          this.$.ajax({
+            url:'get_device.php',
+          }).then((res)=>{
+              if(res.code == 0){
+                this.deviceList = res.data
+              }else {
+                this.$message({
+                  message:'获取设备列表失败！',
+                  type:'error'
+                })
+              }
+
+          })
+      },
+      handleAdd(){
+          this.add_dialogFormVisible = true;
+          if(this.$refs.addForm){
+            this.$refs.addForm.clearValidate();
+          }
+          this.currDevice = {}
+      },
+      addCommit(form, formName){
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            console.log(form);
+            this.$store.commit('setLoading', 1);
+            console.log(form.begin_date.valueOf());
+            form.create_date = (new Date()).valueOf();
+            form.site_id = this.site.id;
+//            return
+            if (form.type == 1) {
+              console.log(form.number - this.currDevice.last > 0);
+              delete form.discount;
+              form.begin_date = form.begin_date.valueOf();
+              if(form.number - this.currDevice.last > 0){
+                  this.$message({
+                    message:'添加流水失败，库存不足!',
+                    type:'error'
+                  });
+                this.$store.commit('setLoading', 0);
+                return false;
+              }
+            }else {
+              delete form.begin_date;
+            }
+            this.$.ajax({
+              method: "POST",
+              url: 'add_flow.php',
+              data: this.qs(form)
+            }).then((res) => {
+              if(res.code == 0){
+                  this.getFlow(this.site.id);
+                  this.add_dialogFormVisible = false;
+                  this.updateDevice(form.device_id, form.type==1?(-form.number):form.number);
+                  this.addForm = {type:'1',begin_date:(new Date).valueOf(),discount:0},
+                  this.$message({
+                    message:'新增流水成功！',
+                    type:'success'
+                  })
+
+              }else {
+                  if(res.code == -1){
+                      var message = '新增流水失败，缺少参数！'
+                  }else if(res.code == 1){
+                      var message = '新增流水失败，请稍后重试！'
+                  }
+                  this.$message({
+                    message:message,
+                    type:"error"
+                  });
+                  this.$store.commit('setLoading', 0)
+              }
+            })
+          } else {
+            this.$message({
+              message: '数据不合法',
+              type: 'error'
+            })
+          }
+        })
+      },
+      formatter(row, column) {
+          if(row.type == 1){
+            return this.formatDate(Number(row.begin_date))
+          }else {
+              return '---'
+          }
+      },
+      formatterDate(row, colum){
+        return this.formatDate(Number(row.begin_date), 1)
+      },
+      formatterMoney(row, colum){
+          if(row.type == 0){
+              return row.money
+          }else {
+              return '---'
+          }
+      },
+      formatterDiscount(row, colum){
+        if(row.type == 0){
+          return row.discount
+        }else {
+          return '---'
+        }
+      },
+      //时间格式化
+      formatDate: function (value, type) {
+        let date = new Date(value);
+        let y = date.getFullYear();
+        let MM = date.getMonth() + 1;
+        MM = MM < 10 ? ('0' + MM) : MM;
+        let d = date.getDate();
+        d = d < 10 ? ('0' + d) : d;
+        let h = date.getHours();
+        h = h < 10 ? ('0' + h) : h;
+        let m = date.getMinutes();
+        m = m < 10 ? ('0' + m) : m;
+        let s = date.getSeconds();
+        s = s < 10 ? ('0' + s) : s;
+        if(type){
+          return y + '-' + MM + '-' + d + ' ' + h + ':' + m + ':' + s;
+        }else {
+          return y + '-' + MM + '-' + d ;
+        }
+      },
+      //更新库存
+      updateDevice(id, num){
+        this.$.ajax({
+          method:'POST',
+          url:'update_device.php',
+          data:this.qs({id,num})
+        }).then((res)=>{
+            if(res.code != 0){
+                if(res.code == -1){
+                    var message = "更新库存失败，缺少参数！"
+                }else if(res.code == 1){
+                    var message = "更新库存失败，请重试！"
+                }
+                this.$message({
+                  message:message,
+                  type:'error'
+                })
+            }
+        })
+      },
+      //删除
+      handleRemove(index, row){
+        this.$confirm('确定要删除编号为 ' + row.id + ' 的订单吗?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$store.commit('setLoading', 1);
+          this.$.ajax({
+            method: "POST",
+            url: 'remove.php',
+            data: this.qs({name: 'flow', type: 0, id: row.id})
+          }).then((res) => {
+            if (res.code == 0) {
+              this.updateDevice(row.device_id, row.type==1?row.number:(-row.number));
+              this.getFlow(this.site.id);
+              this.$message({
+                message: '删除成功！',
+                type: 'success'
+              })
+            }
+          })
+        }).catch(() => {
+        });
+      },
+      //匹配当前device
+      findDevice(device){
+          for(var a = 0; a < this.deviceList.length; a++){
+              if(this.deviceList[a].id == device){
+                  this.currDevice = this.deviceList[a];
+                  break;
+              }
+          }
+      },
+      //计算总金额
+      computedMoney(){
+          console.log(this.addForm.number);
+          if(this.addForm.type == 0 && this.addForm.device_id){
+              this.flowArr = [];
+              this.countNumber = 0;
+              for(var a = 0; a < this.allData.length; a++){
+                  if(this.allData[a].type == 1 && this.allData[a].device_id == this.currDevice.id){
+                      if(this.allData[a].settle_last - (this.addForm.number - this.countNumber) > 0){
+                        this.flowArr.push({number:this.addForm.number - this.countNumber, flow:this.allData[a]});
+                        this.countNumber += (this.addForm.number - this.countNumber)
+                        break;
+                      }else {
+                        this.flowArr.push({number:Number(this.allData[a].settle_last), flow:this.allData[a]});
+                        this.countNumber += Number(this.allData[a].settle_last);
+                      }
+                  }
+              }
+              console.log(this.flowArr);
+              console.log(this.countNumber);
+              this.addForm.money = 0;
+              this.flowDetail = [];
+              for(var a = 0; a < this.flowArr.length; a++){
+                  var item_days = ((new Date()).valueOf() - Number(this.flowArr[a].flow.begin_date)) / (60 * 60 * 1000 * 24)
+                this.addForm.money += Number(this.currDevice.price) * this.flowArr[a].number * item_days
+                this.flowDetail.push({
+                  id:this.flowArr[a].flow.id,
+                  begin_date:this.formatDate(Number(this.flowArr[a].flow.begin_date)),
+                  number:this.flowArr[a].number,
+                  money:(Number(this.currDevice.price) * this.flowArr[a].number * item_days).toFixed(2)
+                });
+              }
+              this.addForm.money = this.addForm.money.toFixed(2);
+              this.addForm = Object.assign({}, this.addForm, {...this.addForm});
+          }
+      },
+      //计算天数
+      computedDay(){
+          var today = (new Date()).valueOf();
       }
     },
     created(){
       this.$store.commit('setLoading', 0);
+      this.getDevice()
     },
     mounted(){
       this.$store.commit('setActiveIndex', "order");
@@ -51,6 +467,20 @@
           type:'error'
         })
       }
+    },
+    watch:{
+      add_dialogFormVisible(val){
+          if(val == false){
+            this.addForm = {type:'1',begin_date:(new Date).valueOf(),discount:0}
+          }
+      }
     }
   }
 </script>
+
+<style>
+  .el-table .caret-wrapper{
+    height: 34px;
+    width: 0;
+  }
+</style>

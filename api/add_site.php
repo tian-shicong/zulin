@@ -21,7 +21,7 @@
         if(count($results) > 0){
             $data['code'] = -2;
         }else{
-            $sql = "insert into site (name, person_name, phone, status) VALUES ('$name', '$person_name', '$phone', 1)";
+            $sql = "insert into site (name, person_name, phone, status, isfinished) VALUES ('$name', '$person_name', '$phone', 1, 0)";
             if ($conn->query($sql) == TRUE) {
                 $data['code'] = 0;
             } else {
