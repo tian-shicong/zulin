@@ -103,6 +103,7 @@ export default {
     }
   },
   created(){
+      this.$store.commit('setLoading',0)
       if(sessionStorage.getItem('user')){
         this.ruleForm = this.$store.state.user;
         console.log(this.ruleForm)
