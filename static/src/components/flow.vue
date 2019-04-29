@@ -36,6 +36,20 @@
       >
       </el-table-column>
       <el-table-column
+        prop="type1"
+        label="流水类型"
+        sortable
+      >
+      </el-table-column>
+      <el-table-column
+        prop="create_date"
+        label="生成日期"
+        sortable
+        width="100px"
+        :formatter="formatterDate"
+      >
+      </el-table-column>
+      <el-table-column
         prop="begin_date"
         label="起始日期"
         sortable
@@ -43,26 +57,13 @@
         :formatter="formatter"
       >
       </el-table-column>
-      <!--<el-table-column
-        prop="create_date"
-        label="生成日期"
-        sortable
-        width="100px"
-        :formatter="formatterDate"
-      >
-      </el-table-column>-->
-      <el-table-column
-        prop="type1"
-        label="流水类型"
-        sortable
-      >
-      </el-table-column>
+
       <el-table-column
         prop="settle1"
         label="是否结清"
       ></el-table-column>
       <el-table-column
-        prop="settle_last"
+        prop="last"
         label="待结算"
         sortable
       ></el-table-column>
@@ -90,13 +91,14 @@
       </el-table-column>
       <el-table-column label="操作" width="150px">
         <template slot-scope="scope">
-          <!--<el-button-->
-            <!--size="mini"-->
-            <!--@click="handleEdit(scope.$index, scope.row)">编辑</el-button>-->
+          <el-button
+            size="mini"
+            :disabled="scope.row.type == 1"
+            @click="showDetail(scope.$index, scope.row)">明细</el-button>
           <el-button
             size="mini"
             type="danger"
-            :disabled="scope.row.settle == 1 || scope.row.settle_last != scope.row.number"
+            :disabled="scope.row.settle == 1 || (scope.row.settle_last != scope.row.number && scope.row.number  >= 0)"
             @click="handleRemove(scope.$index, scope.row)">删除</el-button>
         </template>
       </el-table-column>
@@ -134,7 +136,7 @@
           <el-input v-model="addForm.discount" placeholder="请输入优惠金额" type="number"></el-input>
         </el-form-item>
         <el-form-item label="应收"v-if="addForm.type == 0 && addForm.money">
-          <span>{{addForm.money - addForm.discount}}</span>
+          <span>{{(addForm.money - addForm.discount).toFixed(2)}}</span>
         </el-form-item>
         <el-form-item label="明细" v-if="addForm.type == 0 && addForm.money">
           <template slot-scope="scope">
@@ -149,6 +151,11 @@
               <el-table-column
                 label="起始日期"
                 prop="begin_date"
+              >
+              </el-table-column>
+              <el-table-column
+                label="天数"
+                prop="days"
               >
               </el-table-column>
               <el-table-column
@@ -167,8 +174,19 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="add_dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addCommit(addForm,'addForm')">确 定</el-button>
+        <el-button type="primary" @click="addCommit(addForm,'addForm')" :disable="button_disable">确 定</el-button>
       </div>
+    </el-dialog>
+
+    <!--明细窗口-->
+    <el-dialog :title="'收费明细--流水编号' + check_flow_id" :visible.sync="detail_dialogFormVisible">
+      <el-table :data="check_flow_detail" show-summary :summary-method="getSummaries">
+        <el-table-column property="id" label="流水编号"></el-table-column>
+        <el-table-column property="begin_date" label="起始日期"></el-table-column>
+        <el-table-column property="days" label="天数"></el-table-column>
+        <el-table-column property="number" label="数量"></el-table-column>
+        <el-table-column property="money" label="金额"></el-table-column>
+      </el-table>
     </el-dialog>
   </div>
 </template>
@@ -192,7 +210,11 @@
             currDevice:{},
             flowArr:[],
             countNumber:0,
-            flowDetail:[]
+            flowDetail:[],
+            button_disable:true,
+            detail_dialogFormVisible:false,
+            check_flow_detail:[],
+            check_flow_id:''
           }
       },
     methods:{
@@ -201,7 +223,7 @@
           this.$.ajax({
             url:'get_flow.php?id=' + id
           }).then((res)=>{
-              this.$store.commit('setLoading', 0)
+              this.$store.commit('setLoading', 0);
               if(res.code == 0){
                   this.allData = res.data;
                   console.log(this.allData);
@@ -209,7 +231,8 @@
                     this.allData[a].begin_date1 = this.formatDate(Number(this.allData[a].begin_date));
                     this.allData[a].create_date1 = this.formatDate(Number(this.allData[a].create_date));
                     this.allData[a].type1 = this.allData[a].type==1?'出租':'归还'
-                    this.allData[a].settle1 = this.allData[a].settle==1?'已结清':'未结清'
+                    this.allData[a].settle1 = this.allData[a].type==1?(this.allData[a].settle==1?'已结清':'未结清'):'---';
+                    this.allData[a].last = this.allData[a].type==1?this.allData[a].settle_last:'---'
                   }
               }
           })
@@ -277,16 +300,25 @@
               }
             }else {
               delete form.begin_date;
+              form.detail = JSON.stringify(this.flowDetail);
             }
+            this.button_disable = false;
             this.$.ajax({
               method: "POST",
               url: 'add_flow.php',
               data: this.qs(form)
             }).then((res) => {
+              this.button_disable = true;
               if(res.code == 0){
-                  this.getFlow(this.site.id);
+//                  this.getFlow(this.site.id);
                   this.add_dialogFormVisible = false;
                   this.updateDevice(form.device_id, form.type==1?(-form.number):form.number);
+                  //更新涉及流水状态
+                  for(var a = 0; a < this.flowDetail.length; a++){
+                      if(this.flowDetail[a].isFlow){
+                          this.updateFlow(this.flowDetail[a].id, this.flowDetail[a].newLast)
+                      }
+                  }
                   this.addForm = {type:'1',begin_date:(new Date).valueOf(),discount:0},
                   this.$message({
                     message:'新增流水成功！',
@@ -322,7 +354,7 @@
           }
       },
       formatterDate(row, colum){
-        return this.formatDate(Number(row.begin_date), 1)
+        return this.formatDate(Number(row.create_date), 1)
       },
       formatterMoney(row, colum){
           if(row.type == 0){
@@ -360,6 +392,7 @@
       },
       //更新库存
       updateDevice(id, num){
+        var $this = this;
         this.$.ajax({
           method:'POST',
           url:'update_device.php',
@@ -375,6 +408,8 @@
                   message:message,
                   type:'error'
                 })
+            }else {
+              $this.getFlow(this.site.id);
             }
         })
       },
@@ -392,8 +427,16 @@
             data: this.qs({name: 'flow', type: 0, id: row.id})
           }).then((res) => {
             if (res.code == 0) {
-              this.updateDevice(row.device_id, row.type==1?row.number:(-row.number));
-              this.getFlow(this.site.id);
+              this.updateDevice(row.device_id, row.number);
+              if(row.type == 0){
+                var detail = JSON.parse(row.detail);
+                for(var a = 0; a < detail.length; a++){
+                  if(detail[a].isFlow){
+                    this.updateFlow(detail[a].id, detail[a].number, 'remove')
+                  }
+                }
+              }
+//              this.getFlow(this.site.id);
               this.$message({
                 message: '删除成功！',
                 type: 'success'
@@ -435,15 +478,31 @@
               this.addForm.money = 0;
               this.flowDetail = [];
               for(var a = 0; a < this.flowArr.length; a++){
-                  var item_days = ((new Date()).valueOf() - Number(this.flowArr[a].flow.begin_date)) / (60 * 60 * 1000 * 24)
+                  var item_days = ((new Date()).valueOf() - Number(this.flowArr[a].flow.begin_date)) / (60 * 60 * 1000 * 24);
+                  item_days = Math.floor(item_days);
                 this.addForm.money += Number(this.currDevice.price) * this.flowArr[a].number * item_days
                 this.flowDetail.push({
+                  days:item_days,
                   id:this.flowArr[a].flow.id,
                   begin_date:this.formatDate(Number(this.flowArr[a].flow.begin_date)),
                   number:this.flowArr[a].number,
-                  money:(Number(this.currDevice.price) * this.flowArr[a].number * item_days).toFixed(2)
+                  money:(Number(this.currDevice.price) * this.flowArr[a].number * item_days).toFixed(2),
+                  isFlow:true,
+                  newLast:Number(this.flowArr[a].flow.settle_last) - Number(this.flowArr[a].number)
+                });
+                console.log(this.flowArr[a].flow.settle_last,this.flowArr[a].number)
+              }
+              if(this.countNumber - this.addForm.number < 0){
+                this.$alert("归还数量大于以往出租数量！");
+                this.flowDetail.push({
+                  id:'---',
+                  begin_date:'---',
+                  number:this.addForm.number - this.countNumber,
+                  money:0,
+                  isFlow:false,
                 });
               }
+              console.log(this.flowDetail)
               this.addForm.money = this.addForm.money.toFixed(2);
               this.addForm = Object.assign({}, this.addForm, {...this.addForm});
           }
@@ -451,6 +510,49 @@
       //计算天数
       computedDay(){
           var today = (new Date()).valueOf();
+      },
+      //更新涉及流水状态
+      updateFlow(id, settle_last, remove){
+          var $this = this;
+          var data = {
+              id:id,settle_last:settle_last
+          };
+          console.log(data)
+          if(remove){
+            data.remove = true;
+          }
+          this.$.ajax({
+            method:'POST',
+            url:'update_flow.php',
+            data:this.qs(data)
+          }).then((res)=>{
+              console.log(res);
+              if(res.code != 0){
+                this.$message({
+                  message:'更新流水失败！',
+                  type:'error'
+                })
+              }else {
+                $this.getFlow(this.site.id);
+              }
+          })
+      },
+      //查看明细
+      showDetail(index, row){
+          console.log(row);
+          this.check_flow_detail = JSON.parse(row.detail);
+          this.detail_dialogFormVisible = true;
+          this.check_flow_id = row.id
+      },
+      getSummaries(param){
+        console.log(param);
+        var data = param.data;
+        var sums = ['总计', '', '', 0, 0]
+        for(var a = 0; a < data.length; a++){
+            sums[3] += Number(data[a].number);
+            sums[4] += Number(data[a].money);
+        }
+        return sums
       }
     },
     created(){

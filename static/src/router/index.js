@@ -6,6 +6,7 @@ import Order from '@/components/order'
 import User from '@/components/user'
 import Count from '@/components/count'
 import Flow from '@/components/flow'
+import Overview from '@/components/overview'
 
 Vue.use(Router);
 
@@ -24,6 +25,11 @@ const router = new Router({
       path: '/flow',
       name: 'flow',
       component: Flow
+    },
+    {
+      path: '/overview',
+      name: 'overview',
+      component: Overview
     },
     {
       path: '/user',

@@ -31,9 +31,17 @@
       </el-table-column>
       <el-table-column
         prop="price"
-        label="价格（元/天）"
+        label="出租价格"
         sortable
+        :formatter="formatterPrice"
         >
+      </el-table-column>
+      <el-table-column
+        prop="loss_price"
+        label="赔偿价格"
+        sortable
+        :formatter="formatterPrice"
+      >
       </el-table-column>
       <el-table-column
         prop="count"
@@ -73,8 +81,14 @@
         <el-form-item label="设备名称" prop="name">
           <el-input v-model="form.name"  placeholder="请输入名称"></el-input>
         </el-form-item>
-        <el-form-item label="价格" prop="price">
-          <el-input v-model="form.price" autocomplete="off" placeholder="请输入价格" type="number"></el-input>
+        <el-form-item label="出租价格" prop="price">
+          <el-input v-model="form.price" autocomplete="off" placeholder="请输入出租价格" type="number"></el-input>
+        </el-form-item>
+        <el-form-item label="赔偿价格" prop="loss_price">
+          <el-input v-model="form.loss_price" autocomplete="off" placeholder="请输入赔偿价格" type="number"></el-input>
+        </el-form-item>
+        <el-form-item label="单位" prop="unit">
+          <el-input v-model="form.unit" autocomplete="off" placeholder="请输入单位"></el-input>
         </el-form-item>
         <el-form-item label="总数" prop="count">
           <el-input v-model="form.count" autocomplete="off" placeholder="请输入总数" type="number"></el-input>
@@ -98,6 +112,12 @@
         <el-form-item label="价格" prop="price">
           <el-input v-model="addForm.price" autocomplete="off" placeholder="请输入价格" type="number"></el-input>
         </el-form-item>
+        <el-form-item label="赔偿价格" prop="loss_price">
+          <el-input v-model="addForm.loss_price" autocomplete="off" placeholder="请输入赔偿价格" type="number"></el-input>
+        </el-form-item>
+        <el-form-item label="单位" prop="unit">
+          <el-input v-model="addForm.unit" autocomplete="off" placeholder="请输入单位，如：个，根，条，台"></el-input>
+        </el-form-item>
         <el-form-item label="总数" prop="count">
           <el-input v-model="addForm.count" autocomplete="off" placeholder="请输入总数" type="number"></el-input>
         </el-form-item>
@@ -107,7 +127,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="add_dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addCommit(addForm,'addForm')">确 定</el-button>
+        <el-button type="primary" @click="addCommit(addForm,'addForm')" :diaable="add_disable">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -122,7 +142,7 @@
         dataList:[],
         allData:[],
         form:{},
-        addForm:{name:'',price:'',count:'',last:''},
+        addForm:{name:'',price:'',count:'',last:'',loss_price:'',unit:'个'},
         dialogFormVisible:false,
         add_dialogFormVisible:false,
         rules:{
@@ -130,15 +150,22 @@
                required: true, message: '请输入名称', trigger: 'blur'
             }],
             price:[{
-              required: true, message: '请输入价格', trigger: 'blur'
+              required: true, message: '请输入出租价格', trigger: 'blur'
             }],
             count:[{
               required: true, message: '请输入总数', trigger: 'blur'
             }],
             last:[{
               required: true, message: '请输入库存', trigger: 'blur'
-            }]
-        }
+            }],
+            loss_price:{
+              required: true, message: '请输入赔偿价格', trigger: 'blur'
+            },
+            unit:{
+              required: true, message: '请输入单位，如：个，根，条，台', trigger: 'blur'
+            }
+        },
+        add_disable:false
       }
     },
     methods:{
@@ -177,7 +204,9 @@
               price: item.price,
               count: item.count,
               last: item.last,
-              id: item.id
+              id: item.id,
+              loss_price:item.loss_price,
+              unit:item.unit
             })
 
         },
@@ -271,11 +300,13 @@
           if (valid) {
             this.$store.commit('setLoading', 1);
             console.log(addForm);
+            this.add_disable = true;
             this.$.ajax({
               method:"POST",
               url:'add_device.php',
               data:this.qs(this.addForm)
             }).then((res)=>{
+                this.add_disable = false;
                 if(res.code != 0){
                   this.$store.commit('setLoading', 0);
                 }
@@ -312,6 +343,15 @@
             return false;
           }
         })
+      },
+      formatterPrice(row, column){
+        if(column.property == 'loss_price'){
+            if(row[column.property]){
+              return row[column.property] + '(元/' + (row.unit?(row.unit+')'):'个)')
+            }
+            return ''
+        }
+        return row[column.property] + '(元/天' + (row.unit?('/'+row.unit+')'):'/个)')
       }
     },
     mounted(){

@@ -4,8 +4,12 @@
 	date_default_timezone_set('PRC');
     require('./conn.php');
     $data = [];
-    $id = $_GET['id'];
-    $sql = "select * from flow where status = 1 and site_id = '$id'";
+    if(isset($_GET['id'])){
+        $id = $_GET['id'];
+        $sql = "select * from flow where status = 1 and site_id = '$id'";
+    }else{
+        $sql = "select * from flow where status = 1";
+    }
     $result = $conn->query($sql);
     $results = array();
     while ($row = $result->fetch_assoc()) {

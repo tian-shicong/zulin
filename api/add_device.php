@@ -16,6 +16,8 @@
         $price = $_POST["price"];
         $count = $_POST["count"];
         $last = $_POST['last'];
+        $loss_price = $_POST['loss_price'];
+        $unit = $_POST['unit'];
         $sql = "select * from device where name = '$name'";
         $result = $conn->query($sql);
         $results = array();
@@ -25,7 +27,7 @@
         if(count($results) > 0){
             $data['code'] = -2;
         }else{
-           $sql = "INSERT INTO device (name, price, count, last, status) VALUES ('$name', '$price', '$count', '$last', 1)";
+           $sql = "INSERT INTO device (name, price, count, last, status, loss_price, unit) VALUES ('$name', '$price', '$count', '$last', 1, '$loss_price', '$unit')";
            if ($conn->query($sql) == TRUE) {
                $data['code'] = 0;
            } else {

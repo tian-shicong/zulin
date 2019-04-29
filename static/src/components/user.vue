@@ -102,13 +102,13 @@
             <el-option :label="item.name" :value="item.id" :key="item.id" v-for="(item, index) in siteList"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="新密码" prop="password" :rules="{required: true, message: '请输入密码', trigger: 'blur'}">
-          <el-input v-model="addForm.password"  placeholder="请输入密码"></el-input>
+        <el-form-item label="密码" prop="password" :rules="{required: true, message: '请输入密码', trigger: 'blur'}">
+          <el-input v-model="addForm.password"  placeholder="请输入密码" type="password"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="add_dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addCommit(addForm,'addForm')">确 定</el-button>
+        <el-button type="primary" @click="addCommit(addForm,'addForm')" :disable="add_disable">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -136,7 +136,8 @@
           type: {required: true, message: '请选择角色', trigger: 'blur'},
         },
         siteList: [],
-        tempUser: ''
+        tempUser: '',
+        add_disable:false
       }
     },
     methods: {
@@ -312,11 +313,13 @@
             if (form.type == 0) {
               newData.site_id = form.site.id
             }
+            this.add_disable = true;
             this.$.ajax({
               method: "POST",
               url: 'add_user.php',
               data: this.qs(newData)
             }).then((res) => {
+              this.add_disable = false;
               if(res.code != 0){
                 this.$store.commit('setLoading', 0);
               }

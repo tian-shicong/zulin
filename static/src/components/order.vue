@@ -58,6 +58,9 @@
         <template slot-scope="scope">
           <el-button
             size="mini"
+            @click="goOverview(scope.$index, scope.row)">总览</el-button>
+          <el-button
+            size="mini"
             @click="goFlow(scope.$index, scope.row)">流水</el-button>
           <el-button
             size="mini"
@@ -104,7 +107,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="add_dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addCommit(addForm,'addForm')">确 定</el-button>
+        <el-button type="primary" @click="addCommit(addForm,'addForm')" :disable="add_disable">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -135,7 +138,7 @@
             validator: this.checkPhone, message: "格式不正确!请输入11位手机号码或者固话，固话格式'0XXX-XXXXXXXX'", trigger: 'blur'
           }]
         },
-
+        add_disable:false
       }
     },
     methods:{
@@ -221,11 +224,13 @@
           if (valid) {
             console.log(form);
             this.$store.commit('setLoading', 1);
+            this.add_disable = true;
             this.$.ajax({
               method:"post",
               url:'edit_site.php',
               data:this.qs(this.form)
             }).then((res=>{
+              this.add_disable = false;
               console.log(res);
               if(res.code != 0){
                 this.$store.commit('setLoading', 0);
@@ -331,6 +336,16 @@
               id: row.id
             }
           })
+      },
+      goOverview(index, row){
+        console.log(row);
+        //跳转订单总览
+        this.$router.push({
+          name:'overview',
+          query: {
+            id: row.id
+          }
+        })
       }
     },
     mounted(){

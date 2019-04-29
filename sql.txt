@@ -4,28 +4,31 @@ CREATE DATABASE zulin
 新建表：
 设备表
 create table device(
-id int(5) NOT NULL auto_increment,
+id int(5) PRIMARY key auto_increment,
 name varchar(20)not null,
 price decimal(6,2),
 count integer(6),
 last integer(6),
-status tinyint(1)，
+status tinyint(1),
+unit varchar(10),
+loss_price decimal(6,2),
 PRIMARY KEY  (`id`)
 )
-工地表
+客户表
 create table site(
-id int(5) NOT NULL auto_increment,
+id int(5) PRIMARY key auto_increment,
 name varchar(20)not null,
 person_name varchar(10),
 phone varchar(15),
-status tinyint(1)，
+status tinyint(1),
+paid_money decimal(8,2),
 PRIMARY KEY  (`id`)
 )
 订单流水表
 create table flow(
-id int(5) NOT NULL auto_increment,
-begin_date date,
-create_date date,
+id int(5) PRIMARY key auto_increment,
+begin_date varchar(13),
+create_date varchar(13),
 number int(6),
 type tinyint not null,
 money decimal(8,2),
@@ -35,13 +38,14 @@ settle tinyint(0),
 settle_last int(6),
 site_id int(5),
 device_id int(5),
+detail varchar(500)
 foreign key(site_id) references site(id),
 foreign key(device_id) references device(id),
 PRIMARY KEY  (`id`)
 )
 订单汇总表
 create table summary(
-id int(5) NOT NULL auto_increment,
+id int(5) PRIMARY key auto_increment,
 site_id int(5),
 device_id int(5),
 foreign key(site_id) references site(id),
@@ -52,7 +56,7 @@ PRIMARY KEY  (`id`)
 )
 用户表
 create table user(
-id int(5) not null auto_increment,
+id int(5) PRIMARY key auto_increment,
 name varchar(20),
 password varchar(32),
 type tinyint(1),
@@ -61,6 +65,15 @@ PRIMARY KEY  (`id`),
 status tinyint(1)
 )
 
+结算全部表
+
+create table settle(
+id int(5) not null auto_increment,
+site_id int(5),
+create_date varchar(13),
+detail varchar(500),
+money decimal(8,2)
+)
 
 
 

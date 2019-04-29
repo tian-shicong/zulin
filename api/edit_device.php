@@ -54,8 +54,18 @@
             }else{
                 $last = $results[0]["last"];
             }
+            if(isset($_POST['loss_price'])){
+                $loss_price = $_POST['loss_price'];
+            }else{
+                $loss_price = $results[0]['loss_price'];
+            }
+            if(isset($_POST['unit'])){
+                $unit = $_POST['unit'];
+            }else{
+                $unit = $results[0]['unit'];
+            }
         }
-        $sql = "UPDATE device SET price = '$price', count = '$count', last = '$last', name = '$name' WHERE id = '$id'";
+        $sql = "UPDATE device SET price = '$price', count = '$count', last = '$last', name = '$name', loss_price = '$loss_price', unit = '$unit' WHERE id = '$id'";
         if ($conn->query($sql) == TRUE) {
             $data['code'] = 0;
         } else {
