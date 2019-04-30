@@ -6,7 +6,8 @@ const state = {
     title:"Hello World",
     activeIndex:'device',
     isEditUser:false,
-    isLoading:true
+    isLoading:true,
+    viewShow:true
 }
 
 export default state

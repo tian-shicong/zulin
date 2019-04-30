@@ -62,7 +62,7 @@
         sortable
       >
       </el-table-column>
-      <el-table-column label="操作">
+      <el-table-column label="操作" width="150px">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -182,6 +182,11 @@
                         }else {
                           res.data[a].status1 = "下架"
                         }
+                        res.data[a].id = Number(res.data[a].id);
+                        res.data[a].count = Number(res.data[a].count);
+                        res.data[a].last = Number(res.data[a].last);
+                        res.data[a].price = Number(res.data[a].price);
+                        res.data[a].loss_price = Number(res.data[a].loss_price);
                     }
                     this.allData = res.data.concat()
                 }
@@ -291,6 +296,7 @@
         },
       handleAdd(){
             this.add_dialogFormVisible = true;
+            this.addForm = {name:'',price:'',count:'',last:'',loss_price:'',unit:'个'};
             if(this.$refs.addForm){
               this.$refs.addForm.clearValidate();
             }

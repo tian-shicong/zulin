@@ -18,6 +18,14 @@ const mutations = {
   },
   setLoading(state, n){
     state.isLoading = n;
+  },
+  reload(state,n){
+    state.viewShow = n;
+    if(n){
+      state.isLoading = false;
+    }else {
+      state.isLoading = true;
+    }
   }
 }
 

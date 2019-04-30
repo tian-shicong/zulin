@@ -9,13 +9,14 @@
       </div>
 
       <search :allData="allData" :dataList="dataList" v-model="dataList" style="float: right"></search>
-      <el-button type="primary" plain style="float: right;margin-right: 8px" @click="handleAdd">新增流水</el-button>
+      <el-button type="primary" plain style="float: right;margin-right: 8px" @click="handleAdd" v-if="user.role == 1">新增流水</el-button>
     </div>
     <el-table
       height="87%"
       :data="dataList"
       style="width: 100%;"
       :default-sort = "{prop: 'id', order: 'ascending'}"
+      show-summary
     >
       <el-table-column
         prop="id"
@@ -42,19 +43,17 @@
       >
       </el-table-column>
       <el-table-column
-        prop="create_date"
+        prop="create_date1"
         label="生成日期"
         sortable
         width="100px"
-        :formatter="formatterDate"
       >
       </el-table-column>
       <el-table-column
-        prop="begin_date"
+        prop="begin_date1"
         label="起始日期"
         sortable
         width="130px"
-        :formatter="formatter"
       >
       </el-table-column>
 
@@ -83,10 +82,31 @@
       </el-table-column>
       <el-table-column
         label="应收金额"
+        prop="realMoney"
+      >
+        <!--<template slot-scope="scope">-->
+          <!--<span v-if="scope.row.type == 0">{{scope.row.money - scope.row.discount}}</span>-->
+          <!--<span v-if="scope.row.type == 1">-&#45;&#45;</span>-->
+        <!--</template>-->
+      </el-table-column>
+      <el-table-column
+        label="是否支付"
       >
         <template slot-scope="scope">
-          <span v-if="scope.row.type == 0">{{scope.row.money - scope.row.discount}}</span>
-          <span v-if="scope.row.type == 1">---</span>
+          <div v-if="user.role == 1">
+            <el-tooltip content="点击切换支付状态" v-if="scope.row.type == 0" effect="dark" placement="top" style="cursor: pointer">
+              <el-tag type="success" v-if="scope.row.ispaid==1" @click="togglePaid(scope.row)">已支付</el-tag>
+              <el-tag type="danger" v-if="scope.row.ispaid==0" @click="togglePaid(scope.row)">未支付</el-tag>
+            </el-tooltip>
+            <span v-if="scope.row.type == 1">---</span>
+          </div>
+          <div v-if="user.role != 1">
+            <span v-if="scope.row.type == 0">
+              <el-tag type="success" v-if="scope.row.ispaid==1">已支付</el-tag>
+              <el-tag type="danger" v-if="scope.row.ispaid==0">未支付</el-tag>
+            </span>
+            <span v-if="scope.row.type == 1">---</span>
+          </div>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="150px">
@@ -98,8 +118,8 @@
           <el-button
             size="mini"
             type="danger"
-            :disabled="scope.row.settle == 1 || (scope.row.settle_last != scope.row.number && scope.row.number  >= 0)"
-            @click="handleRemove(scope.$index, scope.row)">删除</el-button>
+            :disabled="scope.row.settle == 1 || (scope.row.settle_last != scope.row.number && scope.row.number  >= 0) || (scope.row.type == 0 && scope.row.ispaid == 1)"
+            @click="handleRemove(scope.$index, scope.row)" v-if="user.role == 1">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -192,6 +212,11 @@
 </template>
 <script>
   export default{
+    computed:{
+      user(){
+        return this.$store.state.user;
+      }
+    },
       data(){
           return{
             addForm:{type:'1',begin_date:(new Date).valueOf(),discount:0},
@@ -233,6 +258,8 @@
                     this.allData[a].type1 = this.allData[a].type==1?'出租':'归还'
                     this.allData[a].settle1 = this.allData[a].type==1?(this.allData[a].settle==1?'已结清':'未结清'):'---';
                     this.allData[a].last = this.allData[a].type==1?this.allData[a].settle_last:'---'
+                    this.allData[a].realMoney = this.allData[a].type==1?'---':this.allData[a].money - this.allData[a].discount
+                    this.allData[a].ispaid1 = this.allData[a].type==1?'---':(this.allData[a].ispaid==1?'已支付':'未支付');
                   }
               }
           })
@@ -311,6 +338,22 @@
               this.button_disable = true;
               if(res.code == 0){
 //                  this.getFlow(this.site.id);
+                  //更新客户信息
+                  this.$.ajax({
+                    method:'POST',
+                    url:'edit_site.php',
+                    data:this.qs({
+                      id:this.site.id,
+                      isfinished:0
+                    })
+                  }).then((res)=>{
+                      if(res.code != 0){
+                          this.$message({
+                            message:'更新客户信息失败！',
+                            type:'error'
+                          })
+                      }
+                  })
                   this.add_dialogFormVisible = false;
                   this.updateDevice(form.device_id, form.type==1?(-form.number):form.number);
                   //更新涉及流水状态
@@ -427,6 +470,22 @@
             data: this.qs({name: 'flow', type: 0, id: row.id})
           }).then((res) => {
             if (res.code == 0) {
+              //更新客户信息
+              this.$.ajax({
+                method:'POST',
+                url:'edit_site.php',
+                data:this.qs({
+                  id:this.site.id,
+                  isfinished:0
+                })
+              }).then((res)=>{
+                if(res.code != 0){
+                  this.$message({
+                    message:'更新客户信息失败！',
+                    type:'error'
+                  })
+                }
+              })
               this.updateDevice(row.device_id, row.number);
               if(row.type == 0){
                 var detail = JSON.parse(row.detail);
@@ -462,7 +521,7 @@
               this.flowArr = [];
               this.countNumber = 0;
               for(var a = 0; a < this.allData.length; a++){
-                  if(this.allData[a].type == 1 && this.allData[a].device_id == this.currDevice.id){
+                  if(this.allData[a].type == 1 && this.allData[a].device_id == this.currDevice.id && this.allData[a].settle == 0){
                       if(this.allData[a].settle_last - (this.addForm.number - this.countNumber) > 0){
                         this.flowArr.push({number:this.addForm.number - this.countNumber, flow:this.allData[a]});
                         this.countNumber += (this.addForm.number - this.countNumber)
@@ -553,6 +612,21 @@
             sums[4] += Number(data[a].money);
         }
         return sums
+      },
+      //切换支付状态
+      togglePaid(row){
+          this.$.ajax({
+            url:'toggle_ispaid.php?flow_id=' + row.id
+          }).then((res)=>{
+              if(res.code != 0){
+                  this.$message({
+                    message:'操作支付状态失败！',
+                    type:'error'
+                  })
+              }else {
+                  this.getFlow(this.site.id)
+              }
+          })
       }
     },
     created(){

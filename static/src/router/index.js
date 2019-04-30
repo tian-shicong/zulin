@@ -79,17 +79,25 @@ router.beforeEach((to, from, next)=>{
     next()
   }else {
     sessionStorage.setItem('path', to.path);
+    var loginSession = sessionStorage.getItem('user');
+    if(loginSession){
+      loginSession = JSON.parse(loginSession);
+      if(loginSession.role == 0 && to.name != 'order' && to.name != 'flow' && to.name != 'overview'){
+        console.log(to.name)
+        next({
+          path: '/order'
+        })
+      }else {
+        next()
+      }
+
+    }else {
+      next({
+        path: '/login'
+      })
+    }
   }
   // return
-
-  var loginSession = sessionStorage.getItem('user');
-  if(loginSession){
-    next()
-  }else {
-    next({
-      path: '/login'
-    })
-  }
 })
 
 export default router;

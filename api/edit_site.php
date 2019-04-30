@@ -39,6 +39,16 @@
         }else{
             $phone = $myResults[0]["phone"];
         }
+        if(isset($_POST["isfinished"])){
+            $isfinished = $_POST["isfinished"];
+        }else{
+            $isfinished = $myResults[0]["isfinished"];
+        }
+        if(isset($_POST["money"])){
+            $paid_money = (int)$_POST["money"] + (int)$myResults[0]["paid_money"];
+        }else{
+            $paid_money = $myResults[0]["paid_money"];
+        }
         //更新数据
         $sql = "select * from site where name = '$name' and id != '$id'";
         $result = $conn->query($sql);
@@ -49,7 +59,7 @@
         if(count($results) > 0){
             $data['code'] = -2;
         }else{
-            $sql = "UPDATE site SET name = '$name', person_name = '$person_name', phone = '$phone' WHERE id = '$id'";
+            $sql = "UPDATE site SET name = '$name', person_name = '$person_name', phone = '$phone', isfinished = '$isfinished', paid_money = '$paid_money' WHERE id = '$id'";
             if ($conn->query($sql) == TRUE) {
                 $data['code'] = 0;
             } else {

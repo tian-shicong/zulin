@@ -8,7 +8,7 @@
       </div>
 
       <search :allData="allData" :dataList="dataList" v-model="dataList" style="float: right"></search>
-      <el-button type="primary" plain style="float: right;margin-right: 8px" @click="handleAdd">添加客户</el-button>
+      <el-button type="primary" plain style="float: right;margin-right: 8px" @click="handleAdd" v-if="user.role == 1">添加客户</el-button>
     </div>
 
     <el-table
@@ -16,6 +16,7 @@
       :data="dataList"
       style="width: 100%;"
       :default-sort = "{prop: 'id', order: 'ascending'}"
+      :row-class-name="tableRowClassName"
     >
       <el-table-column
         prop="id"
@@ -48,12 +49,12 @@
         sortable
       >
       </el-table-column>
-      <el-table-column
+      <!--<el-table-column
         prop="finished1"
         label="是否完结"
         sortable
       >
-      </el-table-column>
+      </el-table-column>-->
       <el-table-column label="操作" width="300">
         <template slot-scope="scope">
           <el-button
@@ -64,11 +65,11 @@
             @click="goFlow(scope.$index, scope.row)">流水</el-button>
           <el-button
             size="mini"
-            @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+            @click="handleEdit(scope.$index, scope.row)" v-if="user.role == 1">编辑</el-button>
           <el-button
             size="mini"
             :type="scope.row.status==1?'danger':'success'"
-            @click="editStatus(scope.$index, scope.row)">{{scope.row.status==1?"下架":"上架"}}</el-button>
+            @click="editStatus(scope.$index, scope.row)" v-if="user.role == 1">{{scope.row.status==1?"下架":"上架"}}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -116,6 +117,11 @@
 <script>
   export default{
     name: 'order',
+    computed:{
+      user(){
+        return this.$store.state.user;
+      }
+    },
     data () {
       return {
         msg: '订单管理',
@@ -346,6 +352,13 @@
             id: row.id
           }
         })
+      },
+      tableRowClassName(row, column){
+          if(row.row.isfinished == 1){
+              return 'success-row'
+          }else {
+              return ''
+          }
       }
     },
     mounted(){
@@ -353,7 +366,7 @@
       this.$store.commit('setActiveIndex', "order");
     },
     created(){
-      this.$store.commit('setLoading', 1)
+      this.$store.commit('setLoading', 1);
     }
   }
 </script>

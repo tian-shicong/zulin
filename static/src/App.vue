@@ -25,7 +25,7 @@
       </div>
     </div>
     <!--菜单-->
-    <div class="menuBlock">
+    <div class="menuBlock" v-if="user && user.role == 1">
       <!--<el-button @click="collapseSwitch">{{isCollapse?'展开':'收起'}}</el-button>-->
       <el-menu :default-active="activeIndex" class="el-menu-vertical-demo" mode="vertical" @select="handleSelect" :router="true" :collapse="isCollapse">
         <el-menu-item index="device">
@@ -56,8 +56,8 @@
       </div>
     </div>
 
-    <div class="contentPage" :class="!isCollapse ? '' : 'contentPageBig' ">
-      <router-view/>
+    <div class="contentPage" :class="(user && user.role)==0?'fullPage':(!isCollapse ? '' : 'contentPageBig')">
+      <router-view v-if="viewShow"></router-view>
     </div>
 
   </div>
@@ -79,6 +79,9 @@ export default {
     },
     isLoading(){
         return this.$store.state.isLoading;
+    },
+    viewShow(){
+        return this.$store.state.viewShow;
     }
   },
   data() {
@@ -110,6 +113,16 @@ export default {
     if(userSession){
       this.$store.commit('setUserSession', JSON.parse(userSession))
     }
+  },
+  watch:{
+    viewShow(){
+        if(this.viewShow == false){
+            var $this = this
+            setTimeout(function () {
+              $this.$store.commit('reload', true)
+            },200)
+        }
+    }
   }
 }
 </script>
@@ -120,6 +133,7 @@ export default {
     width: 100%;
     height: 100%;
     overflow: hidden;
+    background: #efefef;
   }
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
@@ -178,6 +192,10 @@ export default {
     width: calc(100% - 65px);
     margin-left:65px;
   }
+  .fullPage{
+    width: 100%;
+    margin-left:0;
+  }
   .userText:hover{
     color: #409eff;
   }
@@ -201,5 +219,11 @@ export default {
   }
   .el-breadcrumb{
     font-size: 16px;
+  }
+  .el-table .success-row{
+    background: #e6effb;
+  }
+  .el-table .warning-row {
+    background: #fdf5e6;
   }
 </style>

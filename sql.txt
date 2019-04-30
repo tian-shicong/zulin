@@ -38,7 +38,8 @@ settle tinyint(0),
 settle_last int(6),
 site_id int(5),
 device_id int(5),
-detail varchar(500)
+detail varchar(500),
+ispaid tinyint(0),
 foreign key(site_id) references site(id),
 foreign key(device_id) references device(id),
 PRIMARY KEY  (`id`)

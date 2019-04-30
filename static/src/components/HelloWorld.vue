@@ -56,13 +56,17 @@ export default {
           if(res.code==0){
             console.log(res.data)
             this.$store.commit('setUserSession', {...this.ruleForm,role:res.data.type,id:res.data.id});
-            if(sessionStorage.getItem('path')){
-              this.$router.push({path: sessionStorage.getItem('path')});
-//              this.$router.push({path: '/device'});
+            if(res.data.type == 0){
+                console.log('跳转订单')
+              this.$router.push({path: '/order'});
             }else {
-              this.$router.push({path: '/device'});
+              if(sessionStorage.getItem('path')){
+                this.$router.push({path: sessionStorage.getItem('path')});
+              }else {
+                this.$router.push({path: '/device'});
+              }
             }
-//            this.$router.push({path: '/device'});
+
             this.$message({
               message:'登录成功!',
               type:'success'

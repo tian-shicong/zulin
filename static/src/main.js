@@ -10,6 +10,7 @@ import Vuex from 'vuex';
 import store from './store';
 import axios from 'axios';
 import $ from './util.js';
+
 Vue.prototype.$axios = axios;
 Vue.prototype.$ = $;
 import qs from 'qs';
