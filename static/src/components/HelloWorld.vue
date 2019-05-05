@@ -47,21 +47,30 @@ export default {
   },
   methods:{
       login(){
+        this.$store.commit('setLoading', 1);
         this.$.ajax({
           method:'POST',
           url:'login.php',
           data:this.qs(this.ruleForm)
         }).then((res)=>{
           console.log(res);
+          this.$store.commit('setLoading', 0);
           if(res.code==0){
             console.log(res.data)
-            this.$store.commit('setUserSession', {...this.ruleForm,role:res.data.type,id:res.data.id});
+            this.$store.commit('setUserSession', {...this.ruleForm,role:res.data.type,id:res.data.id, site_id:res.data.site_id});
             if(res.data.type == 0){
                 console.log('跳转订单')
               this.$router.push({path: '/order'});
             }else {
-              if(sessionStorage.getItem('path')){
-                this.$router.push({path: sessionStorage.getItem('path')});
+              if(sessionStorage.getItem('path') != null){
+                  var catchPath = sessionStorage.getItem('path');
+                  console.log(catchPath)
+                  if(catchPath == '/flow' || catchPath == '/overview'){
+                    this.$router.push({path: 'order'});
+                  }else {
+                    this.$router.push({path: sessionStorage.getItem('path')});
+                  }
+
               }else {
                 this.$router.push({path: '/device'});
               }

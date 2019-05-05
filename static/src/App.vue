@@ -6,7 +6,7 @@
     </transition>
     <!--topBar-->
     <div class="topBar">
-      <div style="float: left;line-height: 50px;font-size: 30px">
+      <div style="float: left;line-height: 50px;font-size: 22px">
         <span style='display: inline-block;height: 45px;vertical-align: middle;font-size: 0'>
           <img src="./assets/logo.png" alt="" style="height: 100%">
         </span>
@@ -106,6 +106,7 @@ export default {
     }
   },
   created:function () {
+//      this.$store.commit('setLoading', 0);
       this.$store.commit('setActiveIndex', this.$route.name);
   },
   mounted:function () {

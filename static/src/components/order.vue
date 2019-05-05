@@ -159,9 +159,14 @@
         }
       },
       getSite(){
+        if(this.user.role == 1){
+            var url = 'get_site.php'
+        }else {
+            var url = "get_site.php?id=" + this.user.site_id
+        }
         this.$.ajax({
           method:'GET',
-          url:'get_site.php'
+          url:url
         }).then((res)=>{
           if(res.code == 0){
             this.$store.commit('setLoading', 0);

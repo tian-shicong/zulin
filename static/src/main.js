@@ -42,5 +42,8 @@ new Vue({
   store,
   render: h =>{
     return h(app)
+  },
+  created(){
+    this.$store.commit('setLoading', 1);
   }
 });

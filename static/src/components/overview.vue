@@ -281,7 +281,8 @@
     created(){
       this.$store.commit('setActiveIndex', 'order');
       if(this.$route.query.id){
-        this.getSite(this.$route.query.id)
+        this.getSite(this.$route.query.id);
+        this.$store.commit('setLoading', 1);
       }else {
         this.$message({
           message:'缺少客户编号！',

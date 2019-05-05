@@ -630,7 +630,7 @@
       }
     },
     created(){
-      this.$store.commit('setLoading', 0);
+      this.$store.commit('setLoading', 1);
       this.getDevice()
     },
     mounted(){
