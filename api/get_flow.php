@@ -6,9 +6,9 @@
     $data = [];
     if(isset($_GET['id'])){
         $id = $_GET['id'];
-        $sql = "select * from flow where status = 1 and site_id = '$id'";
+        $sql = "select * from flow where status = 1 and site_id = '$id' order by begin_date";
     }else{
-        $sql = "select * from flow where status = 1";
+        $sql = "select * from flow where status = 1 order by begin_date";
     }
     $result = $conn->query($sql);
     $results = array();

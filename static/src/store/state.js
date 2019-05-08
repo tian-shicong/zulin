@@ -3,7 +3,7 @@
  */
 const state = {
     user: null, // 用户信息
-    title:"Hello World",
+    title:"建材租赁管理系统",
     activeIndex:'device',
     isEditUser:false,
     isLoading:true,

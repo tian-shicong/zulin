@@ -6,6 +6,7 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 //基本配置
 const Util = {
     baseUtl:'http://localhost/zulin/api/'
+    // baseUtl:'./api/'
 };
 
 //ajax 通用配置

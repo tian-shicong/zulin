@@ -8,7 +8,7 @@
       </div>
 
       <search :allData="allData" :dataList="dataList" v-model="dataList" style="float: right"></search>
-      <el-button type="primary" plain style="float: right;margin-right: 8px" @click="handleAdd" v-if="user.role == 1">添加客户</el-button>
+      <el-button type="primary" plain style="float: right;margin-right: 8px" @click="handleAdd" v-if="user && user.role == 1">添加客户</el-button>
     </div>
 
     <el-table
@@ -65,11 +65,11 @@
             @click="goFlow(scope.$index, scope.row)">流水</el-button>
           <el-button
             size="mini"
-            @click="handleEdit(scope.$index, scope.row)" v-if="user.role == 1">编辑</el-button>
+            @click="handleEdit(scope.$index, scope.row)" v-if="user && user.role == 1">编辑</el-button>
           <el-button
             size="mini"
             :type="scope.row.status==1?'danger':'success'"
-            @click="editStatus(scope.$index, scope.row)" v-if="user.role == 1">{{scope.row.status==1?"下架":"上架"}}</el-button>
+            @click="editStatus(scope.$index, scope.row)" v-if="user && user.role == 1">{{scope.row.status==1?"下架":"上架"}}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -119,6 +119,7 @@
     name: 'order',
     computed:{
       user(){
+          console.log(this.$store.state.user);
         return this.$store.state.user;
       }
     },
@@ -367,11 +368,21 @@
       }
     },
     mounted(){
-      this.getSite();
+      if(this.user){
+          this.getSite();
+      }
       this.$store.commit('setActiveIndex', "order");
     },
     created(){
       this.$store.commit('setLoading', 1);
+    },
+    watch:{
+        'user'() {
+          if(this.user){
+            this.getSite();
+          }
+        }
     }
+
   }
 </script>

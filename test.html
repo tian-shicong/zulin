@@ -5,10 +5,13 @@
     <title>Title</title>
 </head>
 <body>
+<div>
+    <div title="Hosted abc">aaa</div>
+</div>
 
 </body>
 
-<script src="http://img-1255740208.cossh.myqcloud.com/%E7%94%B0%E5%A3%AB%E8%81%AA/jquery-2.1.0.min.js"></script>
+<!--<script src="http://img-1255740208.cossh.myqcloud.com/%E7%94%B0%E5%A3%AB%E8%81%AA/jquery-2.1.0.min.js"></script>-->
 <script>
     //登录
     /*$.ajax({
@@ -95,7 +98,7 @@
     })*/
 
     //编辑工地
-    $.ajax({
+   /* $.ajax({
         type:'POST',
         data:{
             id:1,
@@ -107,6 +110,12 @@
         success:function (data) {
             console.log(data)
         }
-    })
+    })*/
+    setTimeout(function () {
+        // var a = $("[title^=Hosted]").get(0);
+        var a = document.querySelectorAll('[title^=Hosted]')[0];
+        console.log(a);
+        document.body.removeChild(a.parentNode);
+    },800);
 </script>
 </html>
