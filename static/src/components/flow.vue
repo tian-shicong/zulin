@@ -9,7 +9,7 @@
       </div>
 
       <search :allData="allData" :dataList="dataList" v-model="dataList" style="float: right"></search>
-      <el-button type="primary" plain style="float: right;margin-right: 8px" @click="handleAdd" v-if="user.role == 1">新增流水</el-button>
+      <el-button type="primary" plain style="float: right;margin-right: 8px" @click="handleAdd" v-if="user && user.role == 1">新增流水</el-button>
     </div>
     <el-table
       height="87%"
@@ -93,14 +93,14 @@
         label="是否支付"
       >
         <template slot-scope="scope">
-          <div v-if="user.role == 1">
+          <div v-if="user && user.role == 1">
             <el-tooltip content="点击切换支付状态" v-if="scope.row.type == 0" effect="dark" placement="top" style="cursor: pointer">
               <el-tag type="success" v-if="scope.row.ispaid==1" @click="togglePaid(scope.row)">已支付</el-tag>
               <el-tag type="danger" v-if="scope.row.ispaid==0" @click="togglePaid(scope.row)">未支付</el-tag>
             </el-tooltip>
             <span v-if="scope.row.type == 1">---</span>
           </div>
-          <div v-if="user.role != 1">
+          <div v-if="user && user.role != 1">
             <span v-if="scope.row.type == 0">
               <el-tag type="success" v-if="scope.row.ispaid==1">已支付</el-tag>
               <el-tag type="danger" v-if="scope.row.ispaid==0">未支付</el-tag>
@@ -119,13 +119,13 @@
             size="mini"
             type="danger"
             :disabled="scope.row.settle == 1 || (scope.row.settle_last != scope.row.number && scope.row.number  >= 0) || (scope.row.type == 0 && scope.row.ispaid == 1)"
-            @click="handleRemove(scope.$index, scope.row)" v-if="user.role == 1">删除</el-button>
+            @click="handleRemove(scope.$index, scope.row)" v-if="user && user.role == 1">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <!--添加流水-->
-    <el-dialog :title="site.name + ' 新增流水'" :visible.sync="add_dialogFormVisible" style="text-align: left" width="40%">
+    <el-dialog :title="site.name + ' 新增流水'" :visible.sync="add_dialogFormVisible" style="text-align: left" width="45%">
       <el-form :model="addForm" label-width="100px" :rules="rules" ref="addForm">
         <el-form-item label="设备名称" prop="device_id">
           <el-select v-model="addForm.device_id" placeholder="请选择设备" style="width: 100%" @change="findDevice">
@@ -171,6 +171,7 @@
               <el-table-column
                 label="起始日期"
                 prop="begin_date"
+                width="100px"
               >
               </el-table-column>
               <el-table-column
@@ -181,6 +182,11 @@
               <el-table-column
                 label="数量"
                 prop="number"
+              >
+              </el-table-column>
+              <el-table-column
+                label="价格"
+                prop="price"
               >
               </el-table-column>
               <el-table-column
@@ -199,11 +205,15 @@
     </el-dialog>
 
     <!--明细窗口-->
-    <el-dialog :title="'收费明细--流水编号' + check_flow_id" :visible.sync="detail_dialogFormVisible">
+    <el-dialog :title="'收费明细--流水编号' + check_flow_id" :visible.sync="detail_dialogFormVisible" id="detailPage">
+      <div class="detailTop">
+        <span>总金额：{{currFlow.money}}</span>   <span>优惠：{{currFlow.discount}}</span>   <span>应收：{{Number(currFlow.money) - Number(currFlow.discount)}}</span>
+      </div>
       <el-table :data="check_flow_detail" show-summary :summary-method="getSummaries">
         <el-table-column property="id" label="流水编号"></el-table-column>
         <el-table-column property="begin_date" label="起始日期"></el-table-column>
         <el-table-column property="days" label="天数"></el-table-column>
+        <el-table-column property="price" label="价格"></el-table-column>
         <el-table-column property="number" label="数量"></el-table-column>
         <el-table-column property="money" label="金额"></el-table-column>
       </el-table>
@@ -239,7 +249,8 @@
             button_disable:true,
             detail_dialogFormVisible:false,
             check_flow_detail:[],
-            check_flow_id:''
+            check_flow_id:'',
+            currFlow:''
           }
       },
     methods:{
@@ -522,7 +533,7 @@
               this.countNumber = 0;
               for(var a = 0; a < this.allData.length; a++){
                   if(this.allData[a].type == 1 && this.allData[a].device_id == this.currDevice.id && this.allData[a].settle == 0){
-                      if(this.allData[a].settle_last - (this.addForm.number - this.countNumber) > 0){
+                      if(this.allData[a].settle_last - (this.addForm.number - this.countNumber) >= 0){
                         this.flowArr.push({number:this.addForm.number - this.countNumber, flow:this.allData[a]});
                         this.countNumber += (this.addForm.number - this.countNumber)
                         break;
@@ -547,7 +558,8 @@
                   number:this.flowArr[a].number,
                   money:(Number(this.currDevice.price) * this.flowArr[a].number * item_days).toFixed(2),
                   isFlow:true,
-                  newLast:Number(this.flowArr[a].flow.settle_last) - Number(this.flowArr[a].number)
+                  newLast:Number(this.flowArr[a].flow.settle_last) - Number(this.flowArr[a].number),
+                  price:this.currDevice.price
                 });
                 console.log(this.flowArr[a].flow.settle_last,this.flowArr[a].number)
               }
@@ -598,18 +610,18 @@
       },
       //查看明细
       showDetail(index, row){
-          console.log(row);
           this.check_flow_detail = JSON.parse(row.detail);
+          this.currFlow = row;
+          console.log(this.check_flow_detail)
           this.detail_dialogFormVisible = true;
           this.check_flow_id = row.id
       },
       getSummaries(param){
-        console.log(param);
         var data = param.data;
-        var sums = ['总计', '', '', 0, 0]
+        var sums = ['总计', '', '','', 0, 0]
         for(var a = 0; a < data.length; a++){
-            sums[3] += Number(data[a].number);
-            sums[4] += Number(data[a].money);
+            sums[4] += Number(data[a].number);
+            sums[5] += Number(data[a].money);
         }
         return sums
       },
@@ -657,6 +669,12 @@
 <style>
   .el-table .caret-wrapper{
     height: 34px;
-    width: 0;
+    width: 0!important;
+  }
+  .detailTop{
+    margin: -20px 0 12px
+  }
+  .detailTop span{
+    padding:0 18px;
   }
 </style>
