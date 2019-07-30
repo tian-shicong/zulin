@@ -20,7 +20,7 @@
         }else{
             $site_id = null;
         }
-        $sql = "select * from user where name = '$name' and status = 1";
+        $sql = "select * from zulin_user where name = '$name' and status = 1";
         $result = $conn->query($sql);
         $results = array();
         while ($row = $result->fetch_assoc()) {
@@ -30,9 +30,9 @@
             $data['code'] = -2;
         }else{
             if($type == 0){
-                $sql = "INSERT INTO user (name, password, type, site_id, status) VALUES ('$name', '$password', '$type', '$site_id', 1)";
+                $sql = "INSERT INTO zulin_user (name, password, type, site_id, status) VALUES ('$name', '$password', '$type', '$site_id', 1)";
             }else{
-                $sql = "INSERT INTO user (name, password, type, status) VALUES ('$name', '$password', '$type', 1)";
+                $sql = "INSERT INTO zulin_user (name, password, type, status) VALUES ('$name', '$password', '$type', 1)";
             }
 
             if ($conn->query($sql) == TRUE) {

@@ -205,18 +205,23 @@
     </el-dialog>
 
     <!--明细窗口-->
-    <el-dialog :title="'收费明细--流水编号' + check_flow_id" :visible.sync="detail_dialogFormVisible" id="detailPage">
-      <div class="detailTop">
-        <span>总金额：{{currFlow.money}}</span>   <span>优惠：{{currFlow.discount}}</span>   <span>应收：{{Number(currFlow.money) - Number(currFlow.discount)}}</span>
+    <el-dialog :title="'收费明细--流水编号' + check_flow_id + '(' + currFlow.create_date1 + ')'" :visible.sync="detail_dialogFormVisible" id="detailPage">
+      <div  @click="myPrint" class="print" style="display: inline-block;position: absolute;top: 20px;left: 12px">打印</div>
+      <div ref="printTable" id="printContent">
+        <div class="detailTop">
+          <span>总金额：{{currFlow.money}}</span>   <span>优惠：{{currFlow.discount}}</span>   <span>应收：{{Number(currFlow.money) - Number(currFlow.discount)}}</span>
+        </div>
+        <div v-if="printing" style="text-align: center">{{'收费明细--流水编号' + check_flow_id + '(' + currFlow.create_date1 + ')'}}</div>
+        <el-table :data="check_flow_detail" show-summary :summary-method="getSummaries" >
+          <el-table-column property="id" label="流水编号"></el-table-column>
+          <el-table-column property="begin_date" label="起始日期"></el-table-column>
+          <el-table-column property="days" label="天数"></el-table-column>
+          <el-table-column property="price" label="价格"></el-table-column>
+          <el-table-column property="number" label="数量"></el-table-column>
+          <el-table-column property="money" label="金额"></el-table-column>
+        </el-table>
       </div>
-      <el-table :data="check_flow_detail" show-summary :summary-method="getSummaries">
-        <el-table-column property="id" label="流水编号"></el-table-column>
-        <el-table-column property="begin_date" label="起始日期"></el-table-column>
-        <el-table-column property="days" label="天数"></el-table-column>
-        <el-table-column property="price" label="价格"></el-table-column>
-        <el-table-column property="number" label="数量"></el-table-column>
-        <el-table-column property="money" label="金额"></el-table-column>
-      </el-table>
+
     </el-dialog>
   </div>
 </template>
@@ -250,7 +255,8 @@
             detail_dialogFormVisible:false,
             check_flow_detail:[],
             check_flow_id:'',
-            currFlow:''
+            currFlow:'',
+            printing:false
           }
       },
     methods:{
@@ -627,18 +633,38 @@
       },
       //切换支付状态
       togglePaid(row){
+        this.$confirm('确定要更改编号为 ' + row.id + ' 的支付状态吗?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$store.commit('setLoading', 1);
           this.$.ajax({
             url:'toggle_ispaid.php?flow_id=' + row.id
           }).then((res)=>{
-              if(res.code != 0){
-                  this.$message({
-                    message:'操作支付状态失败！',
-                    type:'error'
-                  })
-              }else {
-                  this.getFlow(this.site.id)
-              }
+            this.$store.commit('setLoading', 0);
+            if(res.code != 0){
+              this.$message({
+                message:'操作支付状态失败！',
+                type:'error'
+              })
+            }else {
+              this.getFlow(this.site.id)
+            }
           })
+        })
+      },
+      myPrint(){
+          this.printing = true;
+          document.getElementById('siteTitle').innerText = '收费明细--流水编号' + this.check_flow_id;
+          setTimeout(()=>{
+            this.$print(this.$refs.printTable);
+          })
+
+        setTimeout(()=>{
+          this.printing = false;
+          document.getElementById('siteTitle').innerText = '订单管理';
+        },2000)
       }
     },
     created(){

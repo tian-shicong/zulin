@@ -14,6 +14,24 @@ Util.ajax = axios.create({
     baseURL:Util.baseUtl,
 });
 
+Util.ajax.interceptors.request.use(
+  config => {
+    if (config.method == 'post') {
+      // config.data = {
+      //   ...config.data,
+      //   _t: Date.parse(new Date()) / 1000
+      // }
+    } else if (config.method == 'get') {
+      config.params = {
+        _t: Date.parse(new Date()) / 1000,
+        ...config.params
+      }
+    }
+    return config
+  }, function (error) {
+    return Promise.reject(error)
+  }
+)
 
 //添加响应拦截器
 Util.ajax.interceptors.response.use(res => {

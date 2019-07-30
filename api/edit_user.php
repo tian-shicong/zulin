@@ -13,7 +13,7 @@
     $data = [];
     if(isset($_POST["id"]) ){
         $id = $_POST["id"];
-        $sql = "select * from user where id = '$id' and status = 1";
+        $sql = "select * from zulin_user where id = '$id' and status = 1";
         $result = $conn->query($sql);
         $results = array();
         while ($row = $result->fetch_assoc()) {
@@ -24,7 +24,7 @@
         }else{
             if(isset($_POST["name"])){
                 $name = $_POST["name"];
-                $nameSql = "select * from user where name = '$name' and status = 1";
+                $nameSql = "select * from zulin_user where name = '$name' and status = 1";
                 $result1 = $conn->query($nameSql);
                 $results1 = array();
                 while ($row1 = $result1->fetch_assoc()) {
@@ -54,7 +54,7 @@
                 $password = $results[0]["password"];
             }
         }
-        $sql = "UPDATE user SET name = '$name', type = '$type', site_id = '$site_id', password = '$password' WHERE id = '$id' and status = 1";
+        $sql = "UPDATE zulin_user SET name = '$name', type = '$type', site_id = '$site_id', password = '$password' WHERE id = '$id' and status = 1";
         if ($conn->query($sql) == TRUE) {
             $data['code'] = 0;
         } else {

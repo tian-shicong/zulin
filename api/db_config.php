@@ -1,9 +1,9 @@
 <?php
 //    return array(
 //        'host' => 'localhost',
-//        'user' => 'root',
+//        'user' => 's2104642',
 //        'password' => 'tianshicong',
-//        'dbName' => 'music'
+//        'dbName' => 's2104642'
 //    );
     return array(
         'host' => 'localhost',

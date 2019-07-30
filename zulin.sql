@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50711
 File Encoding         : 65001
 
-Date: 2019-04-30 17:38:44
+Date: 2019-07-30 10:59:10
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -29,7 +29,11 @@ CREATE TABLE `device` (
   `unit` varchar(19) DEFAULT NULL,
   `loss_price` decimal(8,2) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of device
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for flow
@@ -51,11 +55,15 @@ CREATE TABLE `flow` (
   `detail` varchar(500) DEFAULT NULL,
   `ispaid` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `site_id` (`site_id`),
-  KEY `device_id` (`device_id`),
-  CONSTRAINT `flow_ibfk_1` FOREIGN KEY (`site_id`) REFERENCES `site` (`id`),
-  CONSTRAINT `flow_ibfk_2` FOREIGN KEY (`device_id`) REFERENCES `device` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8;
+  KEY `flow_1` (`site_id`),
+  KEY `flow_2` (`device_id`),
+  CONSTRAINT `flow_1` FOREIGN KEY (`site_id`) REFERENCES `site` (`id`),
+  CONSTRAINT `flow_2` FOREIGN KEY (`device_id`) REFERENCES `device` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of flow
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for settle
@@ -68,7 +76,11 @@ CREATE TABLE `settle` (
   `detail` varchar(500) DEFAULT NULL,
   `money` decimal(8,2) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of settle
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for site
@@ -83,13 +95,17 @@ CREATE TABLE `site` (
   `isfinished` tinyint(1) DEFAULT '0',
   `paid_money` decimal(8,2) DEFAULT '0.00',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
--- Table structure for user
+-- Records of site
 -- ----------------------------
-DROP TABLE IF EXISTS `user`;
-CREATE TABLE `user` (
+
+-- ----------------------------
+-- Table structure for zulin_user
+-- ----------------------------
+DROP TABLE IF EXISTS `zulin_user`;
+CREATE TABLE `zulin_user` (
   `id` int(5) NOT NULL AUTO_INCREMENT,
   `name` varchar(20) DEFAULT NULL,
   `password` varchar(32) DEFAULT NULL,
@@ -98,4 +114,9 @@ CREATE TABLE `user` (
   `status` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `name` (`name`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of zulin_user
+-- ----------------------------
+INSERT INTO `zulin_user` VALUES ('1', 'admin', '96e79218965eb72c92a549dd5a330112', '1', null, '1');

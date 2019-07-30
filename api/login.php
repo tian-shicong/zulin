@@ -8,7 +8,7 @@
     if(isset($_POST["name"]) && isset($_POST["password"])){
         $name = $_POST["name"];
         $password = md5($_POST["password"]);
-        $sql = "select * from user where name = '$name' and status = 1";
+        $sql = "select * from zulin_user where name = '$name' and status = 1";
         $result = $conn->query($sql);
         $results = array();
         while ($row = $result->fetch_assoc()) {
