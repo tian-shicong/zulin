@@ -270,7 +270,7 @@
                   this.allData = res.data;
                   console.log(this.allData);
                   for(var a = 0; a < this.allData.length; a++){
-                    this.allData[a].begin_date1 = this.formatDate(Number(this.allData[a].begin_date));
+                    this.allData[a].begin_date1 = this.allData[a].type==1?this.formatDate(Number(this.allData[a].begin_date)):'---';
                     this.allData[a].create_date1 = this.formatDate(Number(this.allData[a].create_date));
                     this.allData[a].type1 = this.allData[a].type==1?'出租':'归还'
                     this.allData[a].settle1 = this.allData[a].type==1?(this.allData[a].settle==1?'已结清':'未结清'):'---';
@@ -301,7 +301,7 @@
       //获取设备
       getDevice(){
           this.$.ajax({
-            url:'get_device.php',
+            url:'get_device.php?status=1',
           }).then((res)=>{
               if(res.code == 0){
                 this.deviceList = res.data
@@ -555,7 +555,7 @@
               this.flowDetail = [];
               for(var a = 0; a < this.flowArr.length; a++){
                   var item_days = ((new Date()).valueOf() - Number(this.flowArr[a].flow.begin_date)) / (60 * 60 * 1000 * 24);
-                  item_days = Math.floor(item_days);
+                  item_days = Math.round(item_days);
                 this.addForm.money += Number(this.currDevice.price) * this.flowArr[a].number * item_days
                 this.flowDetail.push({
                   days:item_days,
