@@ -259,11 +259,12 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+            //name为表名
           this.$store.commit('setLoading', 1);
           this.$.ajax({
             method: "POST",
             url: 'remove.php',
-            data: this.qs({name: 'user', type: 0, id: row.id})
+            data: this.qs({name: 'zulin_user', type: 0, id: row.id})
           }).then((res) => {
             if (res.code == 0) {
               this.getUser();
