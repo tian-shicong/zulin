@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50711
 File Encoding         : 65001
 
-Date: 2019-07-30 10:59:10
+Date: 2019-09-30 10:30:52
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -54,6 +54,7 @@ CREATE TABLE `flow` (
   `device_id` int(5) DEFAULT NULL,
   `detail` varchar(500) DEFAULT NULL,
   `ispaid` tinyint(1) DEFAULT NULL,
+  `end_date` varchar(13) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `flow_1` (`site_id`),
   KEY `flow_2` (`device_id`),
@@ -114,9 +115,9 @@ CREATE TABLE `zulin_user` (
   `status` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `name` (`name`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of zulin_user
 -- ----------------------------
-INSERT INTO `zulin_user` VALUES ('1', 'admin', '96e79218965eb72c92a549dd5a330112', '1', null, '1');
+INSERT INTO `zulin_user` VALUES ('2', 'admin', '96e79218965eb72c92a549dd5a330112', '1', null, '1');

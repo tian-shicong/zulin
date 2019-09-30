@@ -38,7 +38,10 @@
             if(isset($_POST['detail'])){
                 $detail = $_POST['detail'];
             }
-            $sql = "INSERT INTO flow (device_id, site_id, type, number, create_date, status, money, discount, detail, ispaid) VALUES ('$device_id', '$site_id', '$type', '-$number', '$create_date', 1, '$money', '$discount', '$detail', 0)";
+            if(isset($_POST['end_date'])){
+                $end_date = $_POST['end_date'];
+            }
+            $sql = "INSERT INTO flow (device_id, site_id, type, number, create_date, status, money, discount, detail, ispaid,end_date) VALUES ('$device_id', '$site_id', '$type', '-$number', '$create_date', 1, '$money', '$discount', '$detail', 0,'$end_date')";
         }else{
             $sql = "INSERT INTO flow (device_id, site_id, type, number, begin_date, create_date, status, settle, settle_last) VALUES ('$device_id', '$site_id', '$type', '$number', '$begin_date', '$create_date', 1, 0, '$number')";
         }

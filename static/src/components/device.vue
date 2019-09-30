@@ -127,7 +127,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="add_dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addCommit(addForm,'addForm')" :diaable="add_disable">确 定</el-button>
+        <el-button type="primary" @click="addCommit(addForm,'addForm')" :disable="add_disable">确 定</el-button>
       </div>
     </el-dialog>
   </div>

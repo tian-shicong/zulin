@@ -102,7 +102,7 @@
       }
     },
     methods:{
-      //获取流水
+      //获取订单
       getFlow(id){
         this.$.ajax({
           url:'get_flow.php?id=' + id
@@ -185,7 +185,7 @@
       },
       settleCommit(){
           //更新库存 遍历
-          //更新流水状态
+          //更新订单状态
           //写入结算明细
           //更新客户状态
           //计算总金额
@@ -243,7 +243,7 @@
               })
           }
       },
-      //更新流水状态
+      //更新订单状态
       updateFlowSettle(){
           this.$.ajax({
             method:"POST",
@@ -252,7 +252,7 @@
           }).then((res=>{
               if(res.code != 0){
                 this.$message({
-                  message:'更新流水状态失败！',
+                  message:'更新订单状态失败！',
                   type:'error'
                 })
               }

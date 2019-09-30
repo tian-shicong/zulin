@@ -62,7 +62,7 @@
             @click="goOverview(scope.$index, scope.row)">总览</el-button>
           <el-button
             size="mini"
-            @click="goFlow(scope.$index, scope.row)">流水</el-button>
+            @click="goFlow(scope.$index, scope.row)">订单</el-button>
           <el-button
             size="mini"
             @click="handleEdit(scope.$index, scope.row)" v-if="user && user.role == 1">编辑</el-button>
@@ -341,7 +341,7 @@
       },
       goFlow(index, row){
           console.log(row);
-          //跳转流水详情
+          //跳转订单详情
           this.$router.push({
             name:'flow',
             query: {
